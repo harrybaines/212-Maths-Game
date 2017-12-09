@@ -1,148 +1,246 @@
 __author__ = "Harry Baines"
 
 import random
-from enum import Enum
 
-class MathType(Enum):
-    ADDITION = 1
-    SUBTRACTION = 2
-    MULTIPLICATION = 3
-    DIVISION = 4
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
+from tkinter.ttk import *
 
-# Class to represent a game
-class Game:
+class MathGame(ttk.Frame):
 
-    __minBound = 1
-    __maxBound = 4
+    """ This class implements various mathematical operations
+    such as addition, subtraction, multiplication and division
+    on a set of randomly generated operands """
 
-    __correctAnswers = 0
-    __options = [i for i in range(1,7)]
+    def open_msg_box(self):
+        tk.messagebox.showwarning(
+            "Event Triggered",
+            "Button Clicked"
+        )
+
+    def open_answer_window(self, key):
+
+        self.master.withdraw()
+
+        self.topLevel = tk.Toplevel(self.master)
+        self.topLevel.title("Maths Game")
+        self.topLevel.grid_rowconfigure(1, weight=1)
+        self.topLevel.grid_columnconfigure(1, weight=1)
+
+        self.topLevel.geometry(self.geom_string)
+        self.topLevel.resizable(width=False, height=False)
+
+        self.style.configure("MathType.TLabel",
+                        foreground="midnight blue",
+                        font=self.font_name + " 60 bold",
+                        padding=10)
+
+        self.style.configure("Question.TLabel",
+                        foreground="midnight blue",
+                        font=self.font_name + " 60 bold",
+                        padding=10)
+
+        self.__maxBound = 4
+        self.__consecutiveRight = 0
+        self.__consecutiveWrong = 0
+
+        # Math type label
+        label = ttk.Label(self.topLevel, text=self.button_names[key-1], style="MathType.TLabel")
+        label.grid(row=0, column=0, columnspan=3)
+        
+        # Call relevant math function to obtain the question
+        self.math_func = self.__mathFuncDict[key]
+        self.questionVar = tk.StringVar()
+        self.questionVar.set(self.math_func())
+
+        # Label for question
+        self.questionLbl = ttk.Label(self.topLevel, text=self.questionVar.get(), style="Question.TLabel")
+        self.questionLbl.grid(row=1, columnspan=3)
+
+        # User entry box
+        self.user_entry = tk.StringVar()
+        self.entry = ttk.Entry(self.topLevel, textvariable=self.user_entry)
+        self.entry.grid(row=2, column=0, columnspan=3)
+        self.entry.delete(0, 'end')
+        self.entry.focus()
+
+        # Entry button
+        entryBtn = ttk.Button(self.topLevel, text="ENTER", command=self.check_answer)
+        entryBtn.grid(row=3, column=0, columnspan=3)
+
+        # Return home
+        goHomeButton = ttk.Button(self.topLevel, text="Back", command=self.go_home).grid(row=4, column=0, columnspan=3)
+
+    def update_top_level(self):
+        self.user_entry.set("0")
+        self.questionLbl.config(text=self.math_func())
+        self.entry.delete(0, 'end')
+        self.entry.focus()
+
+    def go_home(self):
+        self.topLevel.destroy()
+        self.master.geometry(self.geom_string)
+        self.master.deiconify()
 
     # Constructor to initialise a new game
-    def __init__(self):
+    def __init__(self, master):
+
+        ttk.Frame.__init__(self, master)
+        self.pack()
+
+        self.master = master
+        self.font_name = "Tahoma"
+        self.button_names = ["Addition", "Subtraction", "Multiplication",
+                            "Division", "Random Sums", "Quit"]
+        self.geom_string = "1000x500+200+50"
+
+        # Initialise instance variables
+        self.__startMin = 1
+        self.__startMax = 4
+        self.__maxLevel = 10
+        self.__minBound = self.__startMin
+        self.__maxBound = self.__startMax
+        
+        # Dictionary of function names
+        self.__mathFuncDict = {1: self.get_add_question, 2: self.sub, 3: self.mult, 
+                               4: self.div, 5: self.randSums, 6: quit}
+
+        self.__consecutiveRight = 0
+        self.__consecutiveWrong = 0
+
 
         # Display menu to user + obtain user input
-        self.displayMenu()
+        #self.displayMenu()
 
-    def displayMenu(self):
+        self.master.title("Maths Game")
+        self.master.geometry(self.geom_string)
+        self.master.resizable(width=True, height=False)
 
-        print("\nSelect one of the following options:\n")
-        print("(1) Addition (2) Subtraction (3) Multiplication (4) Division (5) Random sums (6) Quit\n")
- 
-        # Get user input from menu
-        opt = self.getMenuOpt()
+        self.style = ttk.Style()
+        self.style.configure("Title.TLabel",
+                        font=self.font_name + " 32 bold",
+                        foreground="blue")
+        self.style.configure("Select.TLabel",
+                        font=self.font_name + " 24 bold",
+                        foreground="blue")
+        self.style.configure("Option.TButton",
+                        foreground="midnight blue",
+                        font=self.font_name + " 12 bold",
+                        padding=20)
 
-        # Call function relevant to user selection
-        if opt == 1:
-            self.add()
-        elif opt == 2:
-            self.sub()
-        elif opt == 3:    
-            self.mult()
-        elif opt == 4:
-            self.div()
-        elif opt == 5:
-            self.add()
-        else:
-            quit()
+        self.titleLabel = ttk.Label(self, text="Maths Game!", style="Title.TLabel")
+        self.titleLabel.grid(row=0, column=0, columnspan=6, pady=20)
 
-    def add(self):
-        while (True):
-            # Get 2 numbers and prompt user
-            firstNum = self.getNextRand()
-            secondNum = self.getNextRand()
-            answer = firstNum + secondNum
-            print("\nWhat is " + str(firstNum) + "+" + str(secondNum) + "?")
-            self.checkAnswer(answer)
+        self.selectLabel = ttk.Label(self, text="Select an option:", style="Select.TLabel")
+        self.selectLabel.grid(row=1, column=0, columnspan=6, pady=20)
+
+        # Loop to initialise buttons
+        for i in range(1,6):
+
+            # Lambda command for each button - call relevant function
+            button = ttk.Button(self, text="%s" % self.button_names[i-1],
+                                command=lambda key=i: self.open_answer_window(key)) 
+            button.grid(row=2, column=i-1)
+
+        button = ttk.Button(self, text="Quit" ,command=quit).grid(row=2, column=5)
+
+    def getOperands(self):
+        return [self.getNextRand(), self.getNextRand()]
+
+    def randSums(self):
+        randOperator = random.randint(1,4)
+        self.__mathFuncDict[randOperator]()
+
+    def get_add_question(self):
+        # Get 2 numbers and prompt user
+        operands = self.getOperands()
+        self.answer = operands[0] + operands[1]
+        question = "\nWhat is " + str(operands[0]) + "+" + str(operands[1]) + "?"
+        return question
+        # self.checkAnswer(operands[0] + operands[1])
 
     def sub(self):
-        while (True):
-            # Get 2 numbers and prompt user
-            firstNum = self.getNextRand()
-            secondNum = self.getNextRand()
-            answer = firstNum - secondNum
-            print("\nWhat is " + str(firstNum) + "-" + str(secondNum) + "?")
-            self.checkAnswer(answer)
+        # Get 2 numbers and prompt user
+        operands = self.getOperands()
+
+        # Flips operands if answer is -ve
+        if operands[0] - operands[1] < 0:
+            temp = operands[0]
+            operands[0] = operands[1]
+            operands[1] = temp
+
+        print("\nWhat is " + str(operands[0]) + "-" + str(operands[1]) + "?")
+        self.checkAnswer(operands[0] - operands[1])
 
     def mult(self):
-        while (True):
-            # Get 2 numbers and prompt user
-            firstNum = self.getNextRand()
-            secondNum = self.getNextRand()
-            answer = firstNum * secondNum
-            print("\nWhat is " + str(firstNum) + "x" + str(secondNum) + "?")
-            self.checkAnswer(answer)
+        # Get 2 numbers and prompt user
+        operands = self.getOperands()
+        print("\nWhat is " + str(operands[0]) + "*" + str(operands[1]) + "?")
+        self.checkAnswer(operands[0] * operands[1])
 
     def div(self):
-        while (True):
-            # Get 2 numbers and prompt user
-            firstNum = self.getNextRand()
-            secondNum = self.getNextRand()
-            answer = firstNum / secondNum
-            print("\nWhat is " + str(firstNum) + "/" + str(secondNum) + "?")
-            self.checkAnswer(answer)
+        # Get 2 numbers and prompt user
+        while True:
+            operands = self.getOperands()
+            result = operands[0] / operands[1]
+            if result == int(result):
+                break
 
+        print("\nWhat is " + str(operands[0]) + "/" + str(operands[1]) + "?")
+        self.checkAnswer(result)
 
-    def checkAnswer(self, answer):
-        # Check for correct answer and if they're carrying on
-        if self.getUserInput() == answer:
-            print("\n\033[1m That is correct, well done! \033[0m")
-            self.__correctAnswers += 1
-        else:
-            print("\n\033[1m Not right, the correct answer is: " + str(answer) + "\033[0m")
+    def check_answer(self):
 
-        # Display menu again if user wants to change option
-        if not(self.isCarryingOn()):
-            self.displayMenu()
+        entry = self.user_entry.get()
+
+        try:
+            # Check for correct answer and if they're carrying on
+            if int(entry) == self.answer:
+
+                print("\n\033[1m That is correct, well done! \033[0m")
+                self.__consecutiveRight += 1
+                self.__consecutiveWrong = 0
+
+                if (self.__consecutiveRight % 3 == 0) and (self.__maxBound != self.__maxLevel):
+                    self.__maxBound += 1
+            else:
+
+                print("\n\033[1m Not right, the correct answer is: " + str(int(self.answer)) + "\033[0m")
+                self.__consecutiveWrong += 1
+                self.__consecutiveRight = 0
+
+                if (self.__consecutiveWrong % 3 == 0) and (self.__maxBound != self.__startMax):
+                    self.__maxBound -= 1
+
+        except (ValueError):
+            print("Please enter a whole number!\n")
+
+        self.update_top_level()
 
     def getUserInput(self):
         while True:
             try:
                 answer = int(input("> "))
                 break
-            except ValueError:
-                print("\nPlease enter a number.\n")
+            except (ValueError, TypeError):
+                print("\nPlease enter a whole number.\n")
         return answer
        
-    def isCarryingOn(self):
-        print("\nPress Y to try another sum or N to stop.")
-        while True:
-            try:
-                carryOn = input("> ").lower()
-                if carryOn not in ("y", "n"):
-                    print("\nPlease enter Y or N.")    
-                    continue
-                break
-            except ValueError:
-                print("\nPlease enter Y or N.") 
-
-        if carryOn == "y":
-            return True
-        else:
-            return False
-
     def getNextRand(self):
         return random.randint(self.__minBound, self.__maxBound)
 
-    def incRange(self):
-        self.__maxBound += 1
+    # print("\nPlease enter a number between 1 and 6.\n")
 
-    def getMenuOpt(self):
-        opt = 0
-        while True:
-            try:
-                opt = int(input("> "))
-                if opt not in self.__options:
-                    print("\nPlease enter a number between 1 and 6.\n")
-                    continue
-                break
-            except ValueError:
-                print("\nPlease enter a number.\n")
-        return opt
+    # print("\nPlease enter a whole number.\n")
 
-# Main function to create a new game instance
+
+# Main function to create a new MathGame instance
 def main():
-    g = Game()
+    root = tk.Tk()
+    game = MathGame(root)
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
+
