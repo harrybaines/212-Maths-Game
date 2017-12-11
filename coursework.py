@@ -13,12 +13,7 @@ class MathGame(tk.Frame):
     such as addition, subtraction, multiplication and division
     on a set of randomly generated operands """
 
-    def open_msg_box(self):
-        tk.messagebox.showwarning(
-            "Event Triggered",
-            "Button Clicked"
-        )
-
+        
     def open_answer_window(self, math_key):
 
         self.master.withdraw()
@@ -35,6 +30,12 @@ class MathGame(tk.Frame):
         self.__maxBound = 4
         self.__consecutiveRight = 0
         self.__consecutiveWrong = 0
+        self.__total_right = 0
+        self.total_wrong = 0
+        self.begun_time_attack = False
+        self.begun_unlimited = False
+        self.start_time = 15
+        self.correct = True
 
         self.style.configure("Enter.TButton",
                         foreground="royal blue",
@@ -50,8 +51,14 @@ class MathGame(tk.Frame):
                         padding=(2,20,2,20))
 
         # Math type label
-        label = tk.Label(self.topLevel, text=self.button_names[math_key-1], bg="#80ff80", fg="medium blue", font=(self.font_name, 74, "bold"))
-        label.grid(row=0, column=0, columnspan=4, pady=40)
+        self.math_type_lbl = tk.Label(self.topLevel, text=self.button_names[math_key-1], bg="#80ff80", fg="medium blue", font=(self.font_name, 74, "bold"))
+        self.math_type_lbl.grid(row=0, column=0, columnspan=4)
+
+        # Info label for user
+        self.info_var = tk.StringVar()
+        self.info_var.set("Answer as many as you can!")
+        self.info_lbl = tk.Label(self.topLevel, textvariable=self.info_var, font=(self.font_name, 22, "bold"), bg="#80ff80")
+        self.info_lbl.grid(row=1, column=1)
         
         # Call relevant math function to obtain the question
         self.math_func = self.__mathFuncDict[math_key]
@@ -59,33 +66,36 @@ class MathGame(tk.Frame):
         self.questionVar.set(self.math_func())
 
         # Label for question
-        self.questionLbl = tk.Label(self.topLevel, text=self.questionVar.get(), bg="#80ff80", font=(self.font_name, 88, "bold"))
-        self.questionLbl.grid(row=1, columnspan=4, pady=5)
+        self.questionLbl = tk.Label(self.topLevel, textvariable=self.questionVar, bg="#80ff80", font=(self.font_name, 88, "bold"))
+        self.questionLbl.grid(row=3, columnspan=4, pady=5)
 
         # Label displays if user was correct/wrong
         self.was_correct_var = tk.StringVar()
         self.was_correct_lbl = tk.Label(self.topLevel, textvariable=self.was_correct_var, bg="#80ff80", fg="midnight blue", font=(self.font_name, 20, "bold"))
-        self.was_correct_lbl.grid(row=2, columnspan=4, pady=5)
+        self.was_correct_lbl.grid(row=4, columnspan=4, pady=5)
 
         # User entry box
         self.user_entry = tk.StringVar()
         self.entry = ttk.Entry(self.topLevel, textvariable=self.user_entry, style="Entry.TEntry", width=5, justify="center", font=(self.font_name, 42, "bold"))
-        self.entry.grid(row=3, columnspan=2)
+        self.entry.grid(row=5, columnspan=2)
         self.entry.delete(0, 'end')
         self.entry.focus()
 
         # Entry button
         entryBtn = ttk.Button(self.topLevel, text="ENTER", style="Enter.TButton", width=10, command=self.check_answer)
-        entryBtn.grid(row=4, columnspan=2)
+        entryBtn.grid(row=6, columnspan=2)
 
         # Return home
         goHomeButton = ttk.Button(self.topLevel, text="Back", style="Back.TButton", command=self.go_home)
-        goHomeButton.grid(row=5, columnspan=2, pady=5)
+        goHomeButton.grid(row=7, columnspan=2, pady=5)
         
+
+    def display_summary(self, result_str):
+        tk.messagebox.showinfo("Summary", result_str)
 
     def update_top_level(self):
         self.user_entry.set("0")
-        self.questionLbl.config(text=self.math_func())
+        self.questionVar.set(self.math_func())
         self.entry.delete(0, 'end')
         self.entry.focus()
 
@@ -93,14 +103,14 @@ class MathGame(tk.Frame):
         self.topLevel.destroy()
         self.master.geometry(self.geom_string)
         self.master.deiconify()
+        if not self.begun_time_attack and self.__total_right != 0:
+            self.display_summary("You got:\n\n" + str(self.__total_right) + " answer(s) correct.\n" + str(self.total_wrong) + " answer(s) wrong.")
 
     # Constructor to initialise a new game
     def __init__(self, master):
 
         tk.Frame.__init__(self, master, bg="#80ff80")
         self.pack()
-
-        self.sec = 10
 
         self.master = master
         self.master.configure(background="#80ff80")
@@ -123,7 +133,6 @@ class MathGame(tk.Frame):
         self.__consecutiveRight = 0
         self.__consecutiveWrong = 0
 
-
         self.master.title("Maths Game")
         self.master.geometry(self.geom_string)
         self.master.resizable(width=False, height=False)
@@ -144,7 +153,7 @@ class MathGame(tk.Frame):
         for i in range(1,9):
 
             # Lambda command for each button - call relevant function
-            button = ttk.Button(self, text="%s" % self.button_names[i-1], style="Option.TButton",
+            button = ttk.Button(self, text=self.button_names[i-1], style="Option.TButton",
                                 command=lambda key=i: self.open_answer_window(key)) 
 
             row = 3 if i > 4 else 2 
@@ -165,25 +174,39 @@ class MathGame(tk.Frame):
         return self.__mathFuncDict[randOperator]()
 
     def time_attack(self):
-        self.update_timer()
+        if not self.begun_time_attack:
+            self.sec = self.start_time
+            self.time_var = tk.StringVar()
+            self.info_var.set("Random sums in 15 seconds!")
+            self.time_lbl = tk.Label(self.topLevel, textvariable=self.time_var, font=(self.font_name, 30, "bold"), bg="#80ff80", fg="red")
+            self.time_lbl.grid(row=2, column=1)
+            self.begun_time_attack = True
+            self.update_timer()
+        return self.rand_sums()
+
+    def unlimited_mode(self):
+        if not self.begun_unlimited:
+            self.info_var.set("Get one wrong, you lose!")
+            self.begun_unlimited = True
+
+        if self.correct:
+            return self.rand_sums()
+        else:
+            self.go_home()
+            return
 
     def update_timer(self):
 
-        self.time_var = tk.StringVar()
-
-        self.time_lbl = tk.Label(self.topLevel, textvariable=self.time_var).grid(row=1,columnspan=4)
-
+        self.time_var.set("Time: " + str(self.sec))
         self.sec -= 1
-        
-        self.time_var.set(str(self.sec))
         self.topLevel.after(1000, self.update_timer)
 
-        if self.sec == 0:
+        if self.sec == -1:
+            self.go_home()
+            self.sec = self.start_time
+            if self.__total_right != 0:
+                self.display_summary("You got " + str(self.__total_right) + " answer(s) correct in " + str(self.start_time) + " seconds!")
             return
-
-
-    def unlimited_mode(self):
-        self.update_timer()
 
     def get_add_question(self):
         # Get 2 numbers and prompt user
@@ -191,7 +214,6 @@ class MathGame(tk.Frame):
         self.answer = operands[0] + operands[1]
         question = str(operands[0]) + " + " + str(operands[1]) + " = ?"
         return question
-        # self.checkAnswer(operands[0] + operands[1])
 
     def get_sub_question(self):
         # Get 2 numbers and prompt user
@@ -234,6 +256,8 @@ class MathGame(tk.Frame):
 
                 self.__consecutiveRight += 1
                 self.__consecutiveWrong = 0
+                self.__total_right += 1
+                self.correct = True
 
                 if (self.__consecutiveRight % 3 == 0) and (self.__maxBound != self.__maxLevel):
                     self.__maxBound += 1
@@ -243,6 +267,8 @@ class MathGame(tk.Frame):
             else:
                 self.__consecutiveWrong += 1
                 self.__consecutiveRight = 0
+                self.total_wrong += 1
+                self.correct = False
 
                 if (self.__consecutiveWrong % 3 == 0) and (self.__maxBound != self.__startMax):
                     self.__maxBound -= 1
@@ -251,6 +277,7 @@ class MathGame(tk.Frame):
 
         except (ValueError):
             self.was_correct_var.set("Not right, enter a whole number!")
+            self.correct = False
 
         self.update_top_level()
        
