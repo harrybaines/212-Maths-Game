@@ -4,48 +4,50 @@ import random
 import time
 
 """
-This module ...
+This module provides an engine which implements simple mathamatics aimed at 5-7 year olds.
+Once the user has selected a mathematical game mode to play, an AnswerWindow will be displayed 
+to the user and they can input their entry. The user can go back and select another game mode if 
+they wish. The game supports tailored learning and dynamically increases the level
+for mathematical question generation.
 """
 
 class MathEngine(object):
 
-    """ This class provides a simple implementation of an answer window
-        displayed to the user and uses Toplevel on top of the master window. 
-        An instance of this class is created once the user has selected a game 
-        mode on the home screen in the HomeFrame class. """
+    """ This class provides methods for each mathematical game mode that a user
+        could select. Values are randomly generated for the operands in the
+        equation. This class can send and receive data from the relevant
+        'entry_win' window to update UI changes depending on current state. """
 
     def __init__(self, entry_win):
-        """ This ... 
+        """ 
+        Constructor to initialise a new MathEngine instance.
 
+        Args:
+            entry_win: the window instance reference to make UI changes.
         """
 
         # Source instance of user entry
-        self.entry_win = entry_win
+        self._entry_win = entry_win
 
         # Math variables to monitor player
-        self.consec_right = 0
-        self.consec_wrong = 0
-        self.total_right = 0
-        self.total_wrong = 0
-        self.correct = True
+        self._start_min = 1
+        self._start_max = 4
+        self._max_level = 10
+        self._min_bound = self._start_min
+        self._max_bound = self._start_max
 
-        self.begun_time_attack = False
-        self.begun_unlimited = False
-        self.start_time = 15
+        self._consec_right = self._consec_wrong = 0
+        self._total_right = self._total_wrong = 0
+        self._correct = True
 
-        self.start_min = 1
-        self.start_max = 4
-        self.max_level = 10
-        self.min_bound = self.start_min
-        self.max_bound = self.start_max
+        self._begun_time_attack = False
+        self._begun_unlimited = False
+        self._start_time = 15
 
         # Dictionary of function names
-        self.math_func_dict = {1: self.get_add_question, 2: self.get_sub_question, 3: self.get_mult_question, 4: self.get_div_question, 
-                               5: self.get_rand_operator, 6: self.time_attack, 7: self.unlimited_mode, 8: quit}
-     
-    """
-    GAME MODE FUNCTIONS
-    """
+        self._math_func_dict = {1: self.get_add_question, 2: self.get_sub_question, 3: self.get_mult_question, 4: self.get_div_question, 
+                                5: self.get_rand_operator, 6: self.time_attack, 7: self.unlimited_mode, 8: quit}
+
     def get_add_question(self):
         """
         Returns a mathematical question string based on addition.
@@ -54,7 +56,7 @@ class MathEngine(object):
             the addition question string.
         """
         operands = self.get_operands()
-        self.answer = operands[0] + operands[1]
+        self._answer = operands[0] + operands[1]
         question = str(operands[0]) + " + " + str(operands[1]) + " = ?"
         return question
 
@@ -74,7 +76,7 @@ class MathEngine(object):
             operands[0] = operands[1]
             operands[1] = temp
 
-        self.answer = operands[0] - operands[1]
+        self._answer = operands[0] - operands[1]
         question = str(operands[0]) + " - " + str(operands[1]) + " = ?"
         return question
 
@@ -86,8 +88,8 @@ class MathEngine(object):
             the multiplication question string.
         """
         operands = self.get_operands()
-        self.answer = operands[0] * operands[1]     # could be changed (get_question()?)
-        question = str(operands[0]) + " x " + str(operands[1]) + " = ?" # could be changed
+        self._answer = operands[0] * operands[1]
+        question = str(operands[0]) + " x " + str(operands[1]) + " = ?"
         return question
 
     def get_div_question(self):
@@ -104,7 +106,7 @@ class MathEngine(object):
             if result == int(result):
                 break
 
-        self.answer = operands[0] / operands[1]
+        self._answer = operands[0] / operands[1]
         question = str(operands[0]) + " / " + str(operands[1]) + " = ?"
         return question
 
@@ -116,10 +118,10 @@ class MathEngine(object):
         Returns:
             the random mathematical operator question string.
         """
-        if not self.begun_time_attack:
-            self.sec = self.start_time
-            self.entry_win.set_info_var("Random sums in 15 seconds!")
-            self.begun_time_attack = True
+        if not self._begun_time_attack:
+            self._sec = self._start_time
+            self._entry_win.info_var = "Random sums in 15 seconds!"
+            self._begun_time_attack = True
             self.update_timer()
 
         return self.get_rand_operator()
@@ -132,12 +134,12 @@ class MathEngine(object):
         Returns:
             the random mathematical operator question string.
         """
-        if not self.begun_unlimited:
-            self.entry_win.set_info_var("Get one wrong, you lose!")
-            self.begun_unlimited = True
+        if not self._begun_unlimited:
+            self._entry_win.info_var = "Get one wrong, you lose!"
+            self._begun_unlimited = True
 
         # Ask next question if correct
-        if self.correct:
+        if self._correct:
             return self.get_rand_operator()
 
     def get_rand_operator(self):
@@ -149,7 +151,7 @@ class MathEngine(object):
             the random mathematical operator question string.
         """
         rand_operator = random.randint(1,4)
-        return self.math_func_dict[rand_operator]()
+        return self._math_func_dict[rand_operator]()
 
     def get_operands(self):
         """
@@ -167,22 +169,22 @@ class MathEngine(object):
         Returns:
             the new randomly generated operand.
         """
-        return random.randint(self.min_bound, self.max_bound)
+        return random.randint(self._min_bound, self._max_bound)
 
     def update_timer(self):
         """
         Updates the timer by 1 second and is used in the time attack game mode.
         """
-        self.entry_win.set_time("Time: " + str(self.sec))
-        self.sec -= 1
-        self.entry_win.after(1000, self.update_timer)
+        self._entry_win.set_time = "Time: " + str(self._sec)
+        self._sec -= 1
+        self._entry_win.after(1000, self.update_timer)
 
-        # Return home if finished
-        if self.sec == -1:
-            self.entry_win.go_home()
-            self.sec = self.start_time
-            if self.total_right != 0:
-                self.entry_win.display_summary("You got " + str(self.total_right) + " answer(s) correct in " + str(self.start_time) + " seconds!")
+        # Reset variables and return home if finished
+        if self._sec == -1:
+            self._entry_win.go_home()
+            self._sec = self._start_time
+            if self._total_right != 0:
+                self._entry_win.display_summary("You got " + str(self._total_right) + " answer(s) correct in " + str(self._start_time) + " seconds!")
 
     def check_answer(self):
         """
@@ -191,58 +193,86 @@ class MathEngine(object):
         Raises:
             ValueError: if the entry is not a whole number.
         """
-        entry = self.entry_win.get_user_entry()
+        entry = self._entry_win.user_entry
         try:
             # User gets question right if entry is whole number
-            if int(entry) == self.answer:
-                self.correct = True
-                self.entry_win.set_result_str("That is correct, well done!")
+            if int(entry) == self._answer:
+                self._correct = True
+                self._entry_win.result_str = "That is correct, well done!"
 
             # User gets question wrong
             else:
-                self.correct = False
-                self.entry_win.set_result_str("Not right, the correct answer was: " + str(int(self.answer)))
+                self._correct = False
+                self._entry_win.result_str = "Not right, the correct answer was: " + str(int(self._answer))
 
         except ValueError:
-            self.correct = False
-            self.entry_win.set_result_str("Not right, enter a whole number!")
+            self._correct = False
+            self._entry_win.result_str = "Not right, enter a whole number!"
 
         # Update consecutive and total variables
-        if self.correct:
-            self.consec_right += 1
-            self.consec_wrong = 0
-            self.total_right += 1
+        if self._correct:
+            self._consec_right += 1
+            self._consec_wrong = 0
+            self._total_right += 1
 
             # Dynamically increase level
-            if (self.consec_right % 3 == 0) and (self.max_bound != self.max_level):
-                self.max_bound += 1
+            if (self._consec_right % 3 == 0) and (self._max_bound != self._max_level):
+                self._max_bound += 1
         else:
-            self.consec_wrong += 1
-            self.consec_right = 0
-            self.total_wrong += 1
+            self._consec_wrong += 1
+            self._consec_right = 0
+            self._total_wrong += 1
             
             # Dynamically decrease level
-            if (self.consec_wrong % 3 == 0) and (self.max_bound != self.start_max):
-                self.max_bound -= 1
+            if (self._consec_wrong % 3 == 0) and (self._max_bound != self._start_max):
+                self._max_bound -= 1
 
         # Go home or carry on depending on selected game mode
-        if not self.correct and self.begun_unlimited:
-            self.entry_win.go_home()
+        if (not self._correct and self._begun_unlimited):
+            self._entry_win.go_home()
         else:
-            self.entry_win.update_top_level()
+            self._entry_win.update_top_level()
 
-    def should_display_info(self):
-        # Display summary window for modes other than time attack
-        if (not self.begun_time_attack and (self.total_right != 0 or self.total_wrong != 0)):
+    @property
+    def display_info(self):
+        """
+        Determines if info window should be displayed to the user once game mode has finished.
+
+        Returns:
+            True if the window should be displayed.
+            False if the window shouldn't be displayed.
+        """
+        if (not self._begun_time_attack and (self._total_right != 0 or self._total_wrong != 0)):
             return True
-
         return False
 
-    def get_total_right(self):
-        return self.total_right
+    @property
+    def total_right(self):
+        """
+        Returns the total number of questions answered correctly by the user.
 
-    def get_total_wrong(self):
-        return self.total_wrong
+        Returns:
+            the total number of correct answers.
+        """
+        return self._total_right
 
-    def get_math_dict(self):
-        return self.math_func_dict
+    @property
+    def total_wrong(self):
+        """
+        Returns the total number of questions answered incorrectly by the user.
+
+        Returns:
+            the total number of incorrect answers.
+        """
+        return self._total_wrong
+
+    @property
+    def math_func_dict(self):
+        """
+        Returns the dictionary of key-value pairs for mathematical functions.
+
+        Returns:
+            the dictionary of mathametical functions.
+        """
+        return self._math_func_dict
+
