@@ -216,16 +216,18 @@ class MathEngine(object):
             self._total_right += 1
 
             # Dynamically increase level
-            if (self._consec_right % 3 == 0) and (self._max_bound != self._max_level):
+            if (self._consec_right == 3) and (self._max_bound != self._max_level):
                 self._max_bound += 1
+                self._consec_right = 0
         else:
             self._consec_wrong += 1
             self._consec_right = 0
             self._total_wrong += 1
             
             # Dynamically decrease level
-            if (self._consec_wrong % 3 == 0) and (self._max_bound != self._start_max):
+            if (self._consec_wrong == 3) and (self._max_bound != self._start_max):
                 self._max_bound -= 1
+                self._consec_wrong = 0
 
         # Go home or carry on depending on selected game mode
         if (not self._correct and self._begun_unlimited):

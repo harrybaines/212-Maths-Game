@@ -229,7 +229,7 @@ class HomeFrame(tk.Frame):
         self._geom_string = "900x550+200+50"
         self._font_name = "Tahoma"
         self._button_names = ["Addition", "Subtraction", "Multiplication", "Division", 
-                             "Random Sums", "Time Attack", "Unlimited Mode", "Quit"]
+                              "Random Sums", "Time Attack", "Unlimited Mode", "Quit"]
         self._master.title("Maths Game")
         self._master.geometry(self.geom_string)
         self._master.resizable(width=False, height=False)
@@ -238,7 +238,7 @@ class HomeFrame(tk.Frame):
         
         # Custom widget styling
         self._style = ttk.Style()
-        self._style.configure("Option.TButton", foreground="royal blue", background="black", font=self._font_name + " 20 bold", padding=(20,60,20,60))
+        self._style.configure("Option.TButton", foreground="royal blue", font=self._font_name + " 20 bold", padding=(20,60,20,60))
 
         # Home window widgets
         self._titleLabel = tk.Label(self, text="Maths Game!", bg=self._bg_col, fg="medium blue", font=self._font_name + " 50 bold")
