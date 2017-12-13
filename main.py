@@ -6,8 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-"""
-This module provides classes to model a simple mathamatics game aimed at 5-7 year olds.
+""" This module provides classes to model a simple mathamatics game aimed at 5-7 year olds.
 The HomeFrame will be displayed to the user when the program begins - the user can then
 select a mathematical game mode to play. An AnswerWindow will be displayed to the user
 and they can input their entry. The user can go back and select another game mode if 
@@ -23,8 +22,7 @@ class AnswerWindow(tk.Toplevel):
         mode on the home screen in the HomeFrame class. """
 
     def __init__(self, home, master, math_key):
-        """
-        Constructor to initialise a new Toplevel window.
+        """ Constructor to initialise a new Toplevel window.
 
         Args:
             home: the HomeFrame object reference.
@@ -105,9 +103,7 @@ class AnswerWindow(tk.Toplevel):
         self._goHomeButton.grid(row=7, columnspan=2, pady=5)
 
     def go_home(self):
-        """
-        Returns to the HomeFrame and removes this top level window.
-        """
+        """ Returns to the HomeFrame and removes this top level window. """
         self.destroy()
         self._master.geometry(self._geom_string)
         self._master.deiconify()
@@ -117,8 +113,7 @@ class AnswerWindow(tk.Toplevel):
             self.display_summary("You got:\n\n" + str(self._mathengine.total_right) + " answer(s) correct.\n" + str(self._mathengine.total_wrong) + " answer(s) wrong.")
 
     def display_summary(self, result_str):
-        """
-        Displays a summary pop up window with details on how the user performed.
+        """ Displays a summary pop up window with details on how the user performed.
 
         Args:
             result_str: the result string to display.
@@ -126,30 +121,34 @@ class AnswerWindow(tk.Toplevel):
         tk.messagebox.showinfo("Summary", result_str)
 
     def update_top_level(self):
-        """
-        Updates this top level window after a result has been checked and displayed.
-        """
-        self._user_entry.set("0")
-        self._entry.delete(0, 'end')
-        self._entry.focus()
+        """ Updates this top level window after a result has been checked and displayed. """
+        self.user_entry = ""
 
         # Get next question
         self._question_var.set(self._math_func())
 
     @property
     def user_entry(self):
-        """
-        Returns the user's entry from the entry box.
+        """ Returns the user's entry from the entry box.
 
         Returns:
             the user's entry.
         """
         return self._user_entry.get().replace(" ","")
 
+    @user_entry.setter
+    def user_entry(self, entry_str):
+        """ Empties the user entry box - used for validation inside the math engine.
+
+        Args:
+            entry_str: the string to set the user entry box to.
+        """
+        self._user_entry.set(entry_str)
+        self._entry.focus()
+
     @property
     def result_str(self):
-        """
-        Returns the string value holding text to display if the user was right or wrong.
+        """ Returns the string value holding text to display if the user was right or wrong.
 
         Returns:
             the value currently in the string variable.
@@ -158,8 +157,7 @@ class AnswerWindow(tk.Toplevel):
 
     @result_str.setter
     def result_str(self, result_str):
-        """
-        Mutator to set the result text to the passed parameter.
+        """ Mutator to set the result text to the passed parameter.
 
         Args
             result_str: the string to set the result string to.
@@ -168,8 +166,7 @@ class AnswerWindow(tk.Toplevel):
 
     @property
     def info_var(self):
-        """
-        Returns the info string variable for game details on this window.
+        """ Returns the info string variable for game details on this window.
 
         Returns:
             the string variable holding brief info.
@@ -178,8 +175,7 @@ class AnswerWindow(tk.Toplevel):
 
     @info_var.setter
     def info_var(self, info_str):
-        """
-        Mutator to set the info string to the passed parameter.
+        """ Mutator to set the info string to the passed parameter.
 
         Args:
             info_str: the string to set the info variable to.
@@ -188,8 +184,7 @@ class AnswerWindow(tk.Toplevel):
 
     @property
     def time_var(self, time_str):
-        """
-        Returns the variable holding the current time in the time attack game mode.
+        """ Returns the variable holding the current time in the time attack game mode.
 
         Returns:
             the time currently in the string.
@@ -198,8 +193,7 @@ class AnswerWindow(tk.Toplevel):
 
     @time_var.setter
     def set_time(self, time_str):
-        """
-        Returns the string value holding text to display if the user was right or wrong.
+        """ Returns the string value holding text to display if the user was right or wrong.
 
         Returns:
             the value currently in the string variable.
@@ -214,8 +208,7 @@ class HomeFrame(tk.Frame):
         will be created when the user selects a game mode. """
 
     def __init__(self, master):
-        """
-        Constructor to initialise a new HomeFrame window.
+        """ Constructor to initialise a new HomeFrame window.
         This window is displayed to the user when the program starts.
 
         Args:
@@ -264,8 +257,7 @@ class HomeFrame(tk.Frame):
 
     @property
     def geom_string(self):
-        """
-        Accessor to obtain the string of window geometry values.
+        """ Accessor to obtain the string of window geometry values.
 
         Returns:
             the geometry string.
@@ -274,8 +266,7 @@ class HomeFrame(tk.Frame):
 
     @property
     def font_name(self):
-        """
-        Accessor to obtain the font name being used in the system.
+        """ Accessor to obtain the font name being used in the system.
 
         Returns:
             the font name as a string.
@@ -284,8 +275,7 @@ class HomeFrame(tk.Frame):
 
     @property
     def button_names(self):
-        """
-        Accessor to obtain the list of option button names corresponding to game modes.
+        """ Accessor to obtain the list of option button names corresponding to game modes.
 
         Returns:
             the list of option button names.

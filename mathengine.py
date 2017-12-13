@@ -3,8 +3,7 @@ __author__ = "Harry Baines"
 import random
 import time
 
-"""
-This module provides an engine which implements simple mathamatics aimed at 5-7 year olds.
+""" This module provides an engine which implements simple mathamatics aimed at 5-7 year olds.
 Once the user has selected a mathematical game mode to play, an AnswerWindow will be displayed 
 to the user and they can input their entry. The user can go back and select another game mode if 
 they wish. The game supports tailored learning and dynamically increases the level
@@ -19,8 +18,7 @@ class MathEngine(object):
         'entry_win' window to update UI changes depending on current state. """
 
     def __init__(self, entry_win):
-        """ 
-        Constructor to initialise a new MathEngine instance.
+        """  Constructor to initialise a new MathEngine instance.
 
         Args:
             entry_win: the window instance reference to make UI changes.
@@ -49,8 +47,7 @@ class MathEngine(object):
                                 5: self.get_rand_operator, 6: self.time_attack, 7: self.unlimited_mode, 8: quit}
 
     def get_add_question(self):
-        """
-        Returns a mathematical question string based on addition.
+        """ Returns a mathematical question string based on addition.
 
         Returns:
             the addition question string.
@@ -61,8 +58,7 @@ class MathEngine(object):
         return question
 
     def get_sub_question(self):
-        """
-        Returns a mathematical question string based on subtraction.
+        """ Returns a mathematical question string based on subtraction.
         If the calculated result is negative, the operands are flipped.
 
         Returns:
@@ -81,8 +77,7 @@ class MathEngine(object):
         return question
 
     def get_mult_question(self):
-        """
-        Returns a mathematical question string based on multiplication.
+        """ Returns a mathematical question string based on multiplication.
 
         Returns:
             the multiplication question string.
@@ -93,8 +88,7 @@ class MathEngine(object):
         return question
 
     def get_div_question(self):
-        """
-        Returns a mathematical question string based on division.
+        """ Returns a mathematical question string based on division.
         If the calculated result is a decimal, the operands are re-calculated.
 
         Returns:
@@ -111,8 +105,7 @@ class MathEngine(object):
         return question
 
     def time_attack(self):
-        """
-        Returns a question string based on a random mathematical operator (+, -, *, /).
+        """ Returns a question string based on a random mathematical operator (+, -, *, /).
         Random questions are generated within the maximum time specified (e.g. 15 seconds).
 
         Returns:
@@ -127,8 +120,7 @@ class MathEngine(object):
         return self.get_rand_operator()
 
     def unlimited_mode(self):
-        """
-        Returns a question string based on a random mathematical operator (+, -, *, /).
+        """ Returns a question string based on a random mathematical operator (+, -, *, /).
         Random questions are generated provided the user is consecutively answering questions correctly.
 
         Returns:
@@ -143,8 +135,7 @@ class MathEngine(object):
             return self.get_rand_operator()
 
     def get_rand_operator(self):
-        """
-        Returns a question string based on a random mathematical operator (+, -, *, /).
+        """ Returns a question string based on a random mathematical operator (+, -, *, /).
         This method is used in the random sums, time attack and unlimited game modes.
 
         Returns:
@@ -154,8 +145,7 @@ class MathEngine(object):
         return self._math_func_dict[rand_operator]()
 
     def get_operands(self):
-        """
-        Returns a list of 2 new randomly generated operands for use in the next mathematical equation.
+        """ Returns a list of 2 new randomly generated operands for use in the next mathematical equation.
 
         Returns:
             the list of 2 new operands.
@@ -163,8 +153,7 @@ class MathEngine(object):
         return [self.get_next_rand(), self.get_next_rand()]
 
     def get_next_rand(self):
-        """
-        Returns a randomly generated number between the minimum and maximum bounds specified.
+        """ Returns a randomly generated number between the minimum and maximum bounds specified.
 
         Returns:
             the new randomly generated operand.
@@ -172,8 +161,7 @@ class MathEngine(object):
         return random.randint(self._min_bound, self._max_bound)
 
     def update_timer(self):
-        """
-        Updates the timer by 1 second and is used in the time attack game mode.
+        """ Updates the timer by 1 second and is used in the time attack game mode.
         """
         self._entry_win.set_time = "Time: " + str(self._sec)
         self._sec -= 1
@@ -187,8 +175,7 @@ class MathEngine(object):
                 self._entry_win.display_summary("You got " + str(self._total_right) + " answer(s) correct in " + str(self._start_time) + " seconds!")
 
     def check_answer(self):
-        """
-        Checks the user entry against a pre-calculated answer from the randomly generated operands.
+        """ Checks the user entry against a pre-calculated answer from the randomly generated operands.
 
         Raises:
             ValueError: if the entry is not a whole number.
@@ -208,11 +195,12 @@ class MathEngine(object):
             self.monitor_level()
 
         except ValueError:
+        	# Inform user of invalid input - clear entry and retry
             self._entry_win.result_str = "Not right, enter a whole number! (Press BACK to stop)"
+            self._entry_win.user_entry = ""
 
     def monitor_level(self):
-        """
-        Monitors the current level the user is on.
+        """ Monitors the current level the user is on.
         Answering 3 questions correctly in a row increases the maximum bound for random number generation.
         Answering 3 questions incorrectly in a row decreases the maximum bound for random number generation.
         Max level = 1-10, min level = 1-4
@@ -246,8 +234,7 @@ class MathEngine(object):
 
     @property
     def display_info(self):
-        """
-        Determines if info window should be displayed to the user once game mode has finished.
+        """ Determines if info window should be displayed to the user once game mode has finished.
 
         Returns:
             True if the window should be displayed.
@@ -259,8 +246,7 @@ class MathEngine(object):
 
     @property
     def total_right(self):
-        """
-        Returns the total number of questions answered correctly by the user.
+        """ Returns the total number of questions answered correctly by the user.
 
         Returns:
             the total number of correct answers.
@@ -269,8 +255,7 @@ class MathEngine(object):
 
     @property
     def total_wrong(self):
-        """
-        Returns the total number of questions answered incorrectly by the user.
+        """ Returns the total number of questions answered incorrectly by the user.
 
         Returns:
             the total number of incorrect answers.
@@ -279,8 +264,7 @@ class MathEngine(object):
 
     @property
     def math_func_dict(self):
-        """
-        Returns the dictionary of key-value pairs for mathematical functions.
+        """ Returns the dictionary of key-value pairs for mathematical functions.
 
         Returns:
             the dictionary of mathametical functions.
