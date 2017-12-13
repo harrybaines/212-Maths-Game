@@ -208,9 +208,7 @@ class MathEngine(object):
             self.monitor_level()
 
         except ValueError:
-            #self._correct = False
             self._entry_win.result_str = "Not right, enter a whole number! (Press BACK to stop)"
-
 
     def monitor_level(self):
         """
