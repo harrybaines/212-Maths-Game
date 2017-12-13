@@ -179,7 +179,7 @@ class MathEngine(object):
         self._sec -= 1
         self._entry_win.after(1000, self.update_timer)
 
-        # Reset variables and return home if finished
+        # Return home if finished and reset relevant variables
         if self._sec == -1:
             self._entry_win.go_home()
             self._sec = self._start_time
@@ -208,6 +208,16 @@ class MathEngine(object):
         except ValueError:
             self._correct = False
             self._entry_win.result_str = "Not right, enter a whole number! (Press BACK to stop)"
+
+        self.monitor_level()
+
+    def monitor_level(self):
+        """
+        Monitors the current level the user is on.
+        Answering 3 questions correctly in a row increases the maximum bound for random number generation.
+        Answering 3 questions incorrectly in a row decreases the maximum bound for random number generation.
+        Max level = 1-10, min level = 1-4
+        """
 
         # Update consecutive and total variables
         if self._correct:
