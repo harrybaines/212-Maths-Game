@@ -205,11 +205,12 @@ class MathEngine(object):
                 self._correct = False
                 self._entry_win.result_str = "Not right, the correct answer is: " + str(int(self._answer)) + " (Press BACK to stop)"
 
+            self.monitor_level()
+
         except ValueError:
-            self._correct = False
+            #self._correct = False
             self._entry_win.result_str = "Not right, enter a whole number! (Press BACK to stop)"
 
-        self.monitor_level()
 
     def monitor_level(self):
         """
