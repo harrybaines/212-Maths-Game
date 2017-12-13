@@ -86,7 +86,7 @@ class AnswerWindow(tk.Toplevel):
 
         # Label displays if user was correct/wrong
         self._was_correct_var = tk.StringVar()
-        self._was_correct_lbl = tk.Label(self, textvariable=self._was_correct_var, bg=self._bg_col, fg="midnight blue", font=self._font_name + " 20 bold")
+        self._was_correct_lbl = tk.Label(self, textvariable=self._was_correct_var, bg=self._bg_col, fg="midnight blue", font=self._font_name + " 18 bold")
         self._was_correct_lbl.grid(row=4, columnspan=4, pady=5)
 
         # User entry box
@@ -101,7 +101,7 @@ class AnswerWindow(tk.Toplevel):
         self._entryBtn.grid(row=6, columnspan=2)
 
         # Return home
-        self._goHomeButton = ttk.Button(self, text="Back", style="Back.TButton", command=self.go_home)
+        self._goHomeButton = ttk.Button(self, text="BACK", style="Back.TButton", command=self.go_home)
         self._goHomeButton.grid(row=7, columnspan=2, pady=5)
 
     def go_home(self):

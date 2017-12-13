@@ -148,7 +148,7 @@ class MathEngine(object):
         This method is used in the random sums, time attack and unlimited game modes.
 
         Returns:
-            the random mathematical operator question string.
+            the random mathematical operator question string after calling relevant math operator method.
         """
         rand_operator = random.randint(1,4)
         return self._math_func_dict[rand_operator]()
@@ -198,16 +198,16 @@ class MathEngine(object):
             # User gets question right if entry is whole number
             if int(entry) == self._answer:
                 self._correct = True
-                self._entry_win.result_str = "That is correct, well done!"
+                self._entry_win.result_str = "That is correct, well done! (Press BACK to stop)"
 
             # User gets question wrong
             else:
                 self._correct = False
-                self._entry_win.result_str = "Not right, the correct answer was: " + str(int(self._answer))
+                self._entry_win.result_str = "Not right, the correct answer is: " + str(int(self._answer)) + " (Press BACK to stop)"
 
         except ValueError:
             self._correct = False
-            self._entry_win.result_str = "Not right, enter a whole number!"
+            self._entry_win.result_str = "Not right, enter a whole number! (Press BACK to stop)"
 
         # Update consecutive and total variables
         if self._correct:
@@ -277,4 +277,3 @@ class MathEngine(object):
             the dictionary of mathametical functions.
         """
         return self._math_func_dict
-
