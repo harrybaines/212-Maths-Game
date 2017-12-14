@@ -219,7 +219,7 @@ class HomeFrame(tk.Frame):
         
         # Initialise instance variables
         self._master = master
-        self._geom_string = "900x550+200+50"
+        self._geom_string = "1200x750+200+50"
         self._font_name = "Tahoma"
         self._button_names = ["Addition", "Subtraction", "Multiplication", "Division", 
                               "Random Sums", "Time Attack", "Unlimited Mode", "Quit"]
